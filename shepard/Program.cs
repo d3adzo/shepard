@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using BITS = BITSReference1_5;
 
 namespace shepard
@@ -99,10 +100,12 @@ namespace shepard
         {
             System.Diagnostics.Process process = new System.Diagnostics.Process();
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+
             startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
             startInfo.FileName = filePath;
             startInfo.Arguments = cmdArgs;
             process.StartInfo = startInfo;
+
             process.Start();
         }
     }

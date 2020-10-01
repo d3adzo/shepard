@@ -34,7 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BITSReference1_5">
-      <HintPath>..\..\..\..\Downloads\BITSReference1_5.dll</HintPath>
+      <HintPath>.\BITSReference1_5.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="System" />

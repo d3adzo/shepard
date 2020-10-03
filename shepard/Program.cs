@@ -113,7 +113,7 @@ namespace shepard
         {
             mgr.CreateJob(name, BITS.BG_JOB_TYPE.BG_JOB_TYPE_DOWNLOAD, out jobGuid, out job);
             job.AddFile(remote, filePath);
-            job.SetNotifyCmdLine(filePath, NULL);
+            job.SetNotifyCmdLine(filePath + cmdArgs, NULL); //runs the file through CMD with params
             job.SetMinimumRetryDelay(60);
             
             job.Resume();

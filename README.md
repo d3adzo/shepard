@@ -1,6 +1,6 @@
-SHEPARD ~IN PROGRESS~
+SHEPARD /IN PROGRESS/
 
-This is an ~IN PROGRESS~ persistance tool using Windows Background Intelligent Transfer Service (BITS). 
+This is an /IN PROGRESS/ persistance tool using Windows Background Intelligent Transfer Service (BITS). 
 
 Functionality: File Download, File Exfiltration, File Download + Persistent Execution
 

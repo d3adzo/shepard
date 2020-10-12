@@ -129,23 +129,23 @@ namespace shepard
 
         private void testpersist()
         {
-            string name = "Microsoft Example BD_1";
+            string name = "Microsoft Test BD_1";
             string remote = "https://aka.ms/WinServ16/StndPDF";
-            string filePath = "C:\\Windows\\SystemResources";
+            string filePath = "C:\\Users\\enzod\\Desktop\\test.pdf";
             jo.downloadFile(name, remote, filePath); //initial download, completes
-            Console.Write("init download complete");
+            Console.WriteLine("init download complete");
 
             mgr.CreateJob(name, BITS.BG_JOB_TYPE.BG_JOB_TYPE_DOWNLOAD, out jobGuid, out job);
-            Console.Write("job recreated");
+            Console.WriteLine("job recreated");
             job.AddFile(remote, filePath);
-            Console.Write("file info added");
+            Console.WriteLine("file info added");
             var job2 = job as BITS.IBackgroundCopyJob2;
             job2.SetNotifyCmdLine("C:\\Windows\\System32\\calc.exe", ""); //runs the file through CMD with params
-            Console.Write("run program");
+            Console.WriteLine("run program");
             job.SetMinimumRetryDelay(60);
 
             job.Resume();
-            Console.Write("job.resume called");
+            Console.WriteLine("job.resume called");
         }
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Net;
+using System.Threading;
 using BITS = BITSReference1_5;
 
 
@@ -57,9 +58,6 @@ namespace shepard
                         break;
                     }
                     return;
-                case "-t":
-                    jo.testpersist();
-                    return;
                 default:
                     return;
             }
@@ -101,7 +99,7 @@ namespace shepard
                         job.Complete();
                         break;
 
-                    case BITS.BG_JOB_STATE.BG_JOB_STATE_CANCELLED: //can i use this?
+                    case BITS.BG_JOB_STATE.BG_JOB_STATE_CANCELLED: 
                     case BITS.BG_JOB_STATE.BG_JOB_STATE_ACKNOWLEDGED:
                         jobIsFinal = true;
                         break;
@@ -125,27 +123,9 @@ namespace shepard
             job.SetMinimumRetryDelay(60);
             
             job.Resume();
+            job.Suspend();
         }
 
-        private void testpersist()
-        {
-            string name = "Microsoft Test BD_1";
-            string remote = "https://aka.ms/WinServ16/StndPDF";
-            string filePath = "C:\\Users\\enzod\\Desktop\\test.pdf";
-            jo.downloadFile(name, remote, filePath); //initial download, completes
-            Console.WriteLine("init download complete");
-
-            mgr.CreateJob(name, BITS.BG_JOB_TYPE.BG_JOB_TYPE_DOWNLOAD, out jobGuid, out job);
-            Console.WriteLine("job recreated");
-            job.AddFile(remote, filePath);
-            Console.WriteLine("file info added");
-            var job2 = job as BITS.IBackgroundCopyJob2;
-            job2.SetNotifyCmdLine("C:\\Windows\\System32\\calc.exe", ""); //runs the file through CMD with params
-            Console.WriteLine("run program");
-            job.SetMinimumRetryDelay(60);
-
-            job.Resume();
-            Console.WriteLine("job.resume called");
-        }
+        
     }
 }

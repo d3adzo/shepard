@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Threading;
 using BITS = BITSReference1_5;
 
@@ -94,7 +95,10 @@ namespace shepard
                 BITS.BG_JOB_STATE state;
                 job.GetState(out state);
                 switch (state)
-                { 
+                {
+                    case BITS.BG_JOB_STATE.BG_JOB_STATE_ERROR:
+                        System.Threading.Thread.Sleep(500); // delay a little bit
+                        break;
                     case BITS.BG_JOB_STATE.BG_JOB_STATE_TRANSFERRED:
                         job.Complete();
                         break;
@@ -123,7 +127,7 @@ namespace shepard
             job.SetMinimumRetryDelay(10);
             
             job.Resume();
-            System.Threading.Thread.Sleep(1000);
+            //System.Threading.Thread.Sleep(1000);
             //job.Suspend();
         }
 
@@ -139,7 +143,6 @@ namespace shepard
             {
                 filepath = filename;
             }
-            Console.WriteLine(filepath+args);
             job2.SetNotifyCmdLine(filepath, args);
         }
 

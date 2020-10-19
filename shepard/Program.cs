@@ -124,7 +124,7 @@ namespace shepard
             
             job.AddFile(remote, filePath);
             jo.commandExec(job, filePath, cmdArgs);
-            job.SetMinimumRetryDelay(60);
+            job.SetMinimumRetryDelay(30);
             
             job.Resume();
             //System.Threading.Thread.Sleep(1000);

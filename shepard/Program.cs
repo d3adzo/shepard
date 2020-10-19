@@ -139,8 +139,6 @@ namespace shepard
             {
                 args = filename;
                 filepath = "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
-                Console.WriteLine(filepath + args);
-                Console.ReadLine();
             }else
             {
                 filepath = filename;

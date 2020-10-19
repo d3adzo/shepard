@@ -1,6 +1,6 @@
 SHEPARD 
 
-This is an IN PROGRESS persistance tool using Windows Background Intelligent Transfer Service (BITS). Bind shell also availble as a persistent example.
+This is an IN PROGRESS persistance tool using Windows Background Intelligent Transfer Service (BITS). Bind shell also available as a persistent example.
 
 Functionality: File Download, File Exfiltration, File Download + Persistent Execution
 

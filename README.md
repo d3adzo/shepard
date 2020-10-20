@@ -34,6 +34,7 @@ Shepard will download and run the bindshell executable, and the user can now use
 Last steps in progress: finding out how to rerun shepard.exe to redownload in case the shell executable is deleted. Most likely will use a service
 
 
+
 D3ADZO
 
 RITSEC Red Team

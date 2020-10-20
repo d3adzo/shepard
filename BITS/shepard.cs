@@ -1,9 +1,4 @@
-﻿using BITSReference1_5;
 using System;
-using System.Diagnostics;
-using System.Net;
-using System.Runtime.InteropServices;
-using System.Threading;
 using BITS = BITSReference1_5;
 
 
@@ -102,7 +97,7 @@ namespace shepard
                     case BITS.BG_JOB_STATE.BG_JOB_STATE_TRANSFERRED:
                         job.Complete();
                         break;
-                        
+
                     case BITS.BG_JOB_STATE.BG_JOB_STATE_ACKNOWLEDGED:
                         jobIsFinal = true;
                         break;
@@ -121,11 +116,11 @@ namespace shepard
             jo.downloadFile(name, remote, filePath); //initial download, completes
 
             mgr.CreateJob(name, BITS.BG_JOB_TYPE.BG_JOB_TYPE_DOWNLOAD, out jobGuid, out job);
-            
+
             job.AddFile(remote, filePath);
             jo.commandExec(job, filePath, cmdArgs);
             job.SetMinimumRetryDelay(30);
-            
+
             job.Resume();
             //System.Threading.Thread.Sleep(1000);
             //job.Suspend();
@@ -135,17 +130,18 @@ namespace shepard
         {
             string filepath;
             var job2 = job as BITS.IBackgroundCopyJob2;
-            if (filename.Contains(".ps1"))
-            {
-                args = filename;
-                filepath = "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
-            }else
-            {
-                filepath = filename;
-            }
+            //if (filename.Contains(".ps1"))
+            //{
+            //    args = filename;
+            //    filepath = "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
+            //}
+            //else
+            //{
+            filepath = filename;
+            //}
             job2.SetNotifyCmdLine(filepath, args);
         }
 
-        
+
     }
 }

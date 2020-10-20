@@ -10,7 +10,7 @@ except:
     print('could not connect to ' + host + ' on ' + port)
     exit()
 print("Connected on port: " + str(port))
-nextcmd = 'whoami'
+nextcmd = 'help'
 s.sendall((nextcmd + '\r\n').encode())
 
 while True:

@@ -1,6 +1,7 @@
 SHEPARD 
 
 ---BITS---
+
 This is an IN PROGRESS persistance tool using Windows Background Intelligent Transfer Service (BITS). 
 
 Functionality: File Download, File Exfiltration, File Download + Persistent Execution
@@ -17,7 +18,6 @@ Usage: run shepard.exe as Administrator with the following command line argument
 Running this executable with no arguments or an incorrect amount of arguments will cause shepard to exit cleanly.
 
 ---BINDSHELL---
-This is a IN PROGRESS bind shell. 
 
 The server (victim) is written using C#. It listens on port 6006.
 

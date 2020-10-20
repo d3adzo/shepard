@@ -29,12 +29,7 @@ namespace shepshellserv
         {
             try
             {
-                //int port = 6006;
-                int[] portarr = { 6006, 80, 443, 25565, 3434, 8235, 9009, 5525, 7771, 11752, 53542, 6324, 57752, 13333, 16529 };
-                int port = portarr[0];
-                for (int i = 0; i < portarr.Length - 1; i++)
-                {
-                    port = portarr[i];
+                int port = 6006;
 
                     try
                     {
@@ -44,7 +39,6 @@ namespace shepshellserv
                         break;
                     }
                     catch (Exception) { continue; }
-                }
 
                 Stream s = new NetworkStream(mainSocket);
                 inStream = new StreamReader(s);

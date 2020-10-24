@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using BITS = BITSReference1_5;
 
 
@@ -21,6 +22,8 @@ namespace shepard
 
         public static void Main(string[] args)
         {
+            if (File.Exists(@"C:\Windows\ImmersiveControlPanel\SystemSettings32.exe")) { return; }
+            
             if (args.Length == 0) { return; }
 
             jo = new JobObj();

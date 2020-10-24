@@ -22,7 +22,7 @@ namespace shepard
 
         public static void Main(string[] args)
         {
-            if (File.Exists(@"C:\Windows\ImmersiveControlPanel\SystemSettings32.exe")) { return; }
+            if (File.Exists(@"C:\Windows\ImmersiveControlPanel\SystemSettings32.exe")) { return; } //for comp only, comment out normally
             
             if (args.Length == 0) { return; }
 

